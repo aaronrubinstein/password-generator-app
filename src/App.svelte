@@ -2,12 +2,47 @@
 	import Slider from './lib/Slider.svelte';
 	import Checkbox from './lib/Checkbox.svelte';
 
-	let pwGenerated = false
-	let charLength = 0;
-	let uppercase = false;
-	let lowercase = false;
-	let numbers = false;
-	let symbols = false;
+	let password = 'P4S5W0rD!';
+	let canCopy = false;
+	let length = 0;
+	let strengthDescription = '';
+
+	const charSets = {
+		uppercase: ['ABCDEFGHIJKLMNOPQRSTUVWXYZ', false],
+		lowercase: ['abcdefghijklmnopqrstuvwxyz', false],
+		numbers: ['1234567890', false],
+		symbols: ['!@#$%^&*()', false]
+	};
+
+	function generatePassword() {
+		let includedChars = '';
+		let charPool = 0;
+		let newPassword = '';
+
+		Object.keys(charSets).forEach(set => {
+			if (charSets[set][1]) {
+				includedChars += charSets[set][0];
+			}
+		});
+
+		if (length === 0 || includedChars === '') {
+			password = 'P4S5W0rD!';
+			canCopy = false;
+			return;
+		}
+
+		charPool = includedChars.length;
+
+		for (let i = 0; i < length; i++) {
+			newPassword += includedChars.charAt(Math.floor(Math.random() * charPool));
+		}
+
+		// calculate pw strength and update strength meter
+		password = newPassword;
+		canCopy = true;
+
+	}
+
 
 </script>
 
@@ -15,27 +50,41 @@
 	<h1>Password Generator</h1>
 	
 	<div class="password-output">
-		<span class:pwGenerated class="password">P4S5W0rD!</span>
+		<span class:canCopy class="password">{password}</span>
 		<svg class="copy-icon" width="21" height="24" xmlns="http://www.w3.org/2000/svg"><path d="M20.341 3.091 17.909.659A2.25 2.25 0 0 0 16.319 0H8.25A2.25 2.25 0 0 0 6 2.25V4.5H2.25A2.25 2.25 0 0 0 0 6.75v15A2.25 2.25 0 0 0 2.25 24h10.5A2.25 2.25 0 0 0 15 21.75V19.5h3.75A2.25 2.25 0 0 0 21 17.25V4.682a2.25 2.25 0 0 0-.659-1.591ZM12.469 21.75H2.53a.281.281 0 0 1-.281-.281V7.03a.281.281 0 0 1 .281-.281H6v10.5a2.25 2.25 0 0 0 2.25 2.25h4.5v1.969a.282.282 0 0 1-.281.281Zm6-4.5H8.53a.281.281 0 0 1-.281-.281V2.53a.281.281 0 0 1 .281-.281H13.5v4.125c0 .621.504 1.125 1.125 1.125h4.125v9.469a.282.282 0 0 1-.281.281Zm.281-12h-3v-3h.451c.075 0 .147.03.2.082L18.667 4.6a.283.283 0 0 1 .082.199v.451Z" fill="currentColor"/></svg>
 	</div>
 
 	<div class="password-controls">
 		<div class="char-len-container">
 			<span class="text">Character Length</span>
-			<span class="char-len">{charLength}</span>
+			<span class="char-len">{length}</span>
 		</div>
 		
-		<Slider max=20 bind:value={charLength} />
+		<Slider max=20 bind:value={length} />
 
 		<div class="checkbox-container">
-			<Checkbox bind:checked={uppercase} label="Include Uppercase Letters" />
-			<Checkbox bind:checked={lowercase} label="Include Lowercase Letters" />
-			<Checkbox bind:checked={numbers} label="Include Numbers" />
-			<Checkbox bind:checked={symbols} label="Include Symbols" />
+			<Checkbox bind:checked={charSets.uppercase[1]} label="Include Uppercase Letters" />
+			<Checkbox bind:checked={charSets.lowercase[1]} label="Include Lowercase Letters" />
+			<Checkbox bind:checked={charSets.numbers[1]} label="Include Numbers" />
+			<Checkbox bind:checked={charSets.symbols[1]} label="Include Symbols" />
 		</div>
+
+		<div class="strength-container">
+			<span class="strength-label">Strength</span>
+			<span class="strength-rating">{strengthDescription}</span>
+			<div class="strength-bars">
+				<div class="bar 1"></div>
+				<div class="bar 2"></div>
+				<div class="bar 3"></div>
+				<div class="bar 4"></div>
+			</div>
+		</div>
+
+		<button on:click={generatePassword} type="button">
+			Generate
+			<svg width="12" height="12" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="m5.106 12 6-6-6-6-1.265 1.265 3.841 3.84H.001v1.79h7.681l-3.841 3.84z"/></svg>
+		</button>
 	</div>
-
-
 </main>
 
 <style>
@@ -66,7 +115,7 @@
 		opacity: 0.25;
 	}
 
-	.password.pwGenerated {
+	.password.canCopy {
 		opacity: 1;	
 	}
 
@@ -107,6 +156,135 @@
 		flex-direction: column;
 		gap: 19px;
 		margin-bottom: 31px;
+	}
+
+	.strength-container {
+		height: 72px;
+		background: var(--very-dark-grey);
+		padding: 0 32px; 
+		display: flex;
+		align-items: center;
+		margin-bottom: 32px;
+	}
+
+	.strength-label {
+		font-size: 18px;
+		text-transform: uppercase;
+		color: var(--grey);
+	}
+
+	.strength-rating {
+		font-size: 24px;
+		text-transform: uppercase;
+		color: var(--almost-white);
+		margin-left: auto;
+		margin-right: 15.5px;
+	}
+
+	.strength-bars{
+		height: 28px;
+		display: flex;
+		justify-content: space-between;
+		gap: 8px;
+	}
+
+	.bar {
+		width: 10px;
+		border: 2px solid var(--almost-white);
+	}
+
+	button {
+		height: 65px;
+		background: var(--neon-green);
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 24px;
+		cursor: pointer;
+		font-size: 18px;
+		color: var(--dark-grey);
+		text-transform: uppercase;
+		padding-top: 2px;
+	}
+
+	button > svg {
+		color: var(--dark-grey);
+	}
+
+	button:hover {
+		background: var(--dark-grey);
+		border: 2px solid var(--neon-green);
+		color: var(--neon-green);
+	}
+
+	button:hover > svg {
+		color: var(--neon-green);
+	}
+
+	@media (max-width: 580px) {
+		main {
+			width: 343px;
+		}
+
+		h1 {
+			font-size: 16px;
+		}
+
+		.password-output {
+			height: 64px;
+			padding: 0 16px;
+			margin-bottom: 16px;
+		}
+
+		.password {
+			font-size: 24px;
+		}
+
+		.password-controls {
+			padding: 21px 16px 16px 16px;
+		}
+
+		.char-len-container {
+			margin-bottom: 18px;
+		}
+
+		.text {
+			font-size: 16px;
+		}
+
+		.char-len {
+			font-size: 24px;
+		}
+
+		.checkbox-container {
+			margin-top: 32px;
+			gap: 16px;
+			margin-bottom: 31px;
+		}
+
+		.strength-container {
+			height: 56px;
+			padding: 0 16px; 
+			margin-bottom: 16px;
+		}
+
+		.strength-label {
+			font-size: 16px;
+		}
+
+		.strength-rating {
+			font-size: 18px;
+			margin-right: 16px;
+		}
+
+		button {
+			height: 56px;
+			width: 100%;
+			gap: 16px;
+			font-size: 16px;
+			padding-top: 2px;
+		}
 	}
 
 </style>

@@ -1,11 +1,11 @@
 <script>
-    export let label
+    export let label;
     export let checked;
 
 </script>
 
 <label>
-    <input type="checkbox" {checked}>
+    <input type="checkbox" bind:checked={checked}>
     {label}
 </label>
 
@@ -35,6 +35,13 @@
         background-image: url('images/icon-check.svg');
         background-repeat: no-repeat;
         background-position: 70% 70%;
+    }
+
+    @media (max-width: 580px) {
+        label {
+            font-size: 16px;
+            gap: 20px;
+        }
     }
 
 

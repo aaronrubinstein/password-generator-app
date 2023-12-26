@@ -1,7 +1,6 @@
 <script>
     export let label;
     export let checked;
-
 </script>
 
 <label>

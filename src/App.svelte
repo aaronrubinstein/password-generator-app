@@ -4,8 +4,10 @@
 
 	let password = 'P4S5W0rD!';
 	let canCopy = false;
+	let copied = false;
 	let length = 0;
 	let strengthDescription = '';
+	let strengthBars;
 
 	const charSets = {
 		uppercase: ['ABCDEFGHIJKLMNOPQRSTUVWXYZ', false],
@@ -18,6 +20,7 @@
 		let includedChars = '';
 		let charPool = 0;
 		let newPassword = '';
+		copied = false;
 
 		Object.keys(charSets).forEach(set => {
 			if (charSets[set][1]) {
@@ -27,6 +30,8 @@
 
 		if (length === 0 || includedChars === '') {
 			password = 'P4S5W0rD!';
+			strengthDescription = '';
+			resetBars();
 			canCopy = false;
 			return;
 		}
@@ -37,12 +42,61 @@
 			newPassword += includedChars.charAt(Math.floor(Math.random() * charPool));
 		}
 
-		// calculate pw strength and update strength meter
+		let passwordStrength = calcStrength(length, charPool);
+		
+		styleBars(passwordStrength[1]);
+		strengthDescription = String(passwordStrength[0]);
 		password = newPassword;
 		canCopy = true;
-
 	}
 
+	function calcStrength(length, charPool) {
+		// calculate password entropy: https://www.omnicalculator.com/other/password-entropy
+		let strength = length * Math.log2(charPool);
+		
+		if (strength < 25) { return ['Too Weak!', 1] }
+		else if (strength < 50) { return ['Weak', 2] }
+		else if (strength < 75) { return ['Medium', 3] }
+		else { return ['Strong', 4] };
+	}
+
+	function styleBars(numBars) {
+		
+		resetBars();
+		
+		let barColor;
+		switch (numBars) {
+			case 1:
+				barColor = 'var(--red)';
+				break;
+			case 2:
+				barColor = 'var(--orange)';
+				break;
+			case 3:
+				barColor = 'var(--yellow)';
+				break;
+			case 4:
+				barColor = 'var(--neon-green)';
+		};
+
+		for (let i = 0; i < numBars; i++) {
+			strengthBars.children[i].style.backgroundColor = barColor;
+			strengthBars.children[i].style.borderColor = barColor;
+		}
+	}
+
+	function resetBars() {
+		Array.from(strengthBars.children).forEach(bar => {
+			bar.style.backgroundColor = 'transparent';
+			bar.style.borderColor = 'var(--almost-white)';
+		});
+	}
+
+	async function copyPassword() {
+		if (!canCopy) return;
+		await navigator.clipboard.writeText(password);
+		copied = true;
+	}
 
 </script>
 
@@ -51,7 +105,12 @@
 	
 	<div class="password-output">
 		<span class:canCopy class="password">{password}</span>
-		<svg class="copy-icon" width="21" height="24" xmlns="http://www.w3.org/2000/svg"><path d="M20.341 3.091 17.909.659A2.25 2.25 0 0 0 16.319 0H8.25A2.25 2.25 0 0 0 6 2.25V4.5H2.25A2.25 2.25 0 0 0 0 6.75v15A2.25 2.25 0 0 0 2.25 24h10.5A2.25 2.25 0 0 0 15 21.75V19.5h3.75A2.25 2.25 0 0 0 21 17.25V4.682a2.25 2.25 0 0 0-.659-1.591ZM12.469 21.75H2.53a.281.281 0 0 1-.281-.281V7.03a.281.281 0 0 1 .281-.281H6v10.5a2.25 2.25 0 0 0 2.25 2.25h4.5v1.969a.282.282 0 0 1-.281.281Zm6-4.5H8.53a.281.281 0 0 1-.281-.281V2.53a.281.281 0 0 1 .281-.281H13.5v4.125c0 .621.504 1.125 1.125 1.125h4.125v9.469a.282.282 0 0 1-.281.281Zm.281-12h-3v-3h.451c.075 0 .147.03.2.082L18.667 4.6a.283.283 0 0 1 .082.199v.451Z" fill="currentColor"/></svg>
+		<div class="copy-container">
+			<span class:copied class="copy-confirm">Copied</span>
+			<button type="button" on:click={copyPassword}>
+				<svg class="copy-icon" width="21" height="24" xmlns="http://www.w3.org/2000/svg"><path d="M20.341 3.091 17.909.659A2.25 2.25 0 0 0 16.319 0H8.25A2.25 2.25 0 0 0 6 2.25V4.5H2.25A2.25 2.25 0 0 0 0 6.75v15A2.25 2.25 0 0 0 2.25 24h10.5A2.25 2.25 0 0 0 15 21.75V19.5h3.75A2.25 2.25 0 0 0 21 17.25V4.682a2.25 2.25 0 0 0-.659-1.591ZM12.469 21.75H2.53a.281.281 0 0 1-.281-.281V7.03a.281.281 0 0 1 .281-.281H6v10.5a2.25 2.25 0 0 0 2.25 2.25h4.5v1.969a.282.282 0 0 1-.281.281Zm6-4.5H8.53a.281.281 0 0 1-.281-.281V2.53a.281.281 0 0 1 .281-.281H13.5v4.125c0 .621.504 1.125 1.125 1.125h4.125v9.469a.282.282 0 0 1-.281.281Zm.281-12h-3v-3h.451c.075 0 .147.03.2.082L18.667 4.6a.283.283 0 0 1 .082.199v.451Z" fill="currentColor"/></svg>
+			</button>
+		</div>
 	</div>
 
 	<div class="password-controls">
@@ -72,7 +131,7 @@
 		<div class="strength-container">
 			<span class="strength-label">Strength</span>
 			<span class="strength-rating">{strengthDescription}</span>
-			<div class="strength-bars">
+			<div class="strength-bars" bind:this={strengthBars}>
 				<div class="bar 1"></div>
 				<div class="bar 2"></div>
 				<div class="bar 3"></div>
@@ -80,7 +139,7 @@
 			</div>
 		</div>
 
-		<button on:click={generatePassword} type="button">
+		<button class="generate-pw-btn" on:click={generatePassword} type="button">
 			Generate
 			<svg width="12" height="12" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="m5.106 12 6-6-6-6-1.265 1.265 3.841 3.84H.001v1.79h7.681l-3.841 3.84z"/></svg>
 		</button>
@@ -97,6 +156,10 @@
 		text-align: center;
 		margin: 133px 0 31px 0;
 		color: var(--grey);
+	}
+
+	button { 
+		cursor: pointer;
 	}
 
 	.password-output {
@@ -119,8 +182,24 @@
 		opacity: 1;	
 	}
 
+	.copy-container {
+		display: flex;
+		align-items: center;
+	}
+	
+	.copy-confirm {
+		font-size: 18px;
+		color: var(--neon-green);
+		text-transform: uppercase;
+		margin-right: 16px;
+		display: none;
+	}
+
+	.copy-confirm.copied {
+		display: inline;
+	}
+
 	.copy-icon {
-		cursor: pointer;
 		color: var(--neon-green);
 	}
 
@@ -193,7 +272,7 @@
 		border: 2px solid var(--almost-white);
 	}
 
-	button {
+	.generate-pw-btn {
 		height: 65px;
 		background: var(--neon-green);
 		width: 100%;
@@ -201,24 +280,23 @@
 		justify-content: center;
 		align-items: center;
 		gap: 24px;
-		cursor: pointer;
 		font-size: 18px;
 		color: var(--dark-grey);
 		text-transform: uppercase;
 		padding-top: 2px;
 	}
 
-	button > svg {
+	.generate-pw-btn > svg {
 		color: var(--dark-grey);
 	}
 
-	button:hover {
+	.generate-pw-btn:hover {
 		background: var(--dark-grey);
 		border: 2px solid var(--neon-green);
 		color: var(--neon-green);
 	}
 
-	button:hover > svg {
+	.generate-pw-btn:hover > svg {
 		color: var(--neon-green);
 	}
 
@@ -239,6 +317,10 @@
 
 		.password {
 			font-size: 24px;
+		}
+
+		.copy-confirm {
+			font-size: 16px;
 		}
 
 		.password-controls {
@@ -278,7 +360,7 @@
 			margin-right: 16px;
 		}
 
-		button {
+		.generate-pw-btn {
 			height: 56px;
 			width: 100%;
 			gap: 16px;

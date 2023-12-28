@@ -31,7 +31,7 @@
     input:checked {
         background-color: var(--neon-green);
         border: 2px solid var(--neon-green);
-        background-image: url('images/icon-check.svg');
+        background-image: url('/images/icon-check.svg');
         background-repeat: no-repeat;
         background-position: 70% 70%;
     }
@@ -42,6 +42,5 @@
             gap: 20px;
         }
     }
-
-
+    
 </style>

@@ -200,9 +200,8 @@
 		line-height: 32px;
 		color: var(--neon-green);
 		text-transform: uppercase;
-		margin-right: 16px;
 		position: absolute;
-		left: -80px;
+		left: -85px;
 		padding: 0 10px;
 		background: var(--dark-grey);
 	}
@@ -329,6 +328,7 @@
 
 		.copy-confirm {
 			font-size: 16px;
+			left: -80px;
 		}
 
 		.password-controls {

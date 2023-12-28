@@ -4,11 +4,9 @@ This is a solution to the [Password generator app challenge on Frontend Mentor](
 
 ### Links
 
-- Solution URL: https://github.com/aaronrubinstein/notifications-page
-- Live Site URL: https://aaronrubinstein.github.io/notifications-page/
+- Solution URL: https://github.com/aaronrubinstein/password-generator-app
+- Live Site URL: https://aaronrubinstein.github.io/password-generator-app/
 
 ### Screenshots
 
-**Desktop**
-
-<img src="./solution/desktop.png" height=70% width=70%>
+<img src="./solution/desktop.png" height=90% width=90%>
